@@ -6,6 +6,16 @@ const PLAYER_SPEED: f32 = 10.0;
 
 // RESOURCES
 
+pub struct PlayerStats {
+    pub speed: f32,
+}
+impl Default for PlayerStats {
+    fn default() -> Self {
+        Self{
+            speed: 40.0,
+        }
+    }
+}
 pub struct Gravity(Vec2);
 
 // COMPONENTS
@@ -23,13 +33,17 @@ fn console(
 
 // SYSTEMS
 
-fn move_player (mut query: Query<(&Player, &mut Transform)>,  input: Res<Input<KeyCode>>) {
+fn move_player (
+    mut query: Query<(&Player, &mut Transform)>, 
+    input: Res<Input<KeyCode>>,
+    stats: Res<PlayerStats>,
+) {
     let (_player, mut transform) = query.single_mut();
     if input.pressed(KeyCode::A) {
-        transform.translation.x -= PLAYER_SPEED;
+        transform.translation.x -= stats.speed;
     }
     if input.pressed(KeyCode::D) {
-        transform.translation.x += PLAYER_SPEED;
+        transform.translation.x += stats.speed;
         //console(format!("{}", transform.translation));
     }
     if input.pressed(KeyCode::Space) {
@@ -99,7 +113,11 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         })
         .insert_bundle(StaticBundle {
             marker: StaticBody,
+<<<<<<< Updated upstream
             shape: CollisionShape::Square(Square::size(Vec2::new(64.0, 64.0))),
+=======
+            shape: CollisionShape::Square(Square::size(Vec2::splat(600.0))),
+>>>>>>> Stashed changes
             coll_layer: CollisionLayer::default(),
         })
     ;
@@ -118,6 +136,7 @@ fn main() {
             ..Default::default()
         })
         .insert_resource(Msaa { samples: 4 })
+        .init_resource::<PlayerStats>()
         //startup systems
         .add_startup_system(setup)
         //systems
