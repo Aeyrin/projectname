@@ -113,11 +113,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         })
         .insert_bundle(StaticBundle {
             marker: StaticBody,
-<<<<<<< Updated upstream
             shape: CollisionShape::Square(Square::size(Vec2::new(64.0, 64.0))),
-=======
-            shape: CollisionShape::Square(Square::size(Vec2::splat(600.0))),
->>>>>>> Stashed changes
             coll_layer: CollisionLayer::default(),
         })
     ;
