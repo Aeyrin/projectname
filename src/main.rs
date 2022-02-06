@@ -2,25 +2,7 @@ use bevy::prelude::*;
 use bevy_physimple::prelude::*;
 
 #[derive(Component)]
-struct Person;
-
-#[derive(Component)]
 struct Player;
-
-#[derive(Component)]
-struct Name(String);
-
-pub struct HelloPlugin;
-
-impl Plugin for HelloPlugin {
-    fn build(&self, app: &mut App) {
-        app
-            .insert_resource(GreetTimer(Timer::from_seconds(99.0, true)))
-            .add_startup_system(add_people)
-            .add_system(greet_people);
-        // add things to your app here
-    }
-}
 
 fn move_player (mut query: Query<(&Player, &mut Transform)>,  input: Res<Input<KeyCode>>) {
     let (_player, mut transform) = query.single_mut();
@@ -43,6 +25,7 @@ fn move_player (mut query: Query<(&Player, &mut Transform)>,  input: Res<Input<K
     }*/
 }
 
+<<<<<<< HEAD
 fn add_people(mut commands: Commands) {
     commands.spawn().insert(Person).insert(Name("Erin :D".to_string()));
     commands.spawn().insert(Person).insert(Name("Kairo :(".to_string()));
@@ -59,6 +42,8 @@ fn greet_people(time: Res<Time>, mut timer: ResMut<GreetTimer>, query: Query<&Na
     }    
 }
 
+=======
+>>>>>>> 7fbd7b05c39da58cec7b6d7e98e29e6725dd4ff9
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn_bundle(OrthographicCameraBundle::new_2d());
     commands.spawn_bundle(SpriteBundle {
@@ -71,7 +56,6 @@ fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
         .add_plugin(Physics2dPlugin)
-        .add_plugin(HelloPlugin)
         .add_startup_system(setup)
         .add_system(move_player)
         .run();
