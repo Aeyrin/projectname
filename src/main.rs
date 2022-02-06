@@ -13,7 +13,13 @@ pub struct Gravity(Vec2);
 #[derive(Component)]
 struct Player;
 
+// FUNCTIONS
 
+fn console(
+    str: String,
+) {
+    println!("{:?}", str);
+}
 
 // SYSTEMS
 
@@ -24,6 +30,7 @@ fn move_player (mut query: Query<(&Player, &mut Transform)>,  input: Res<Input<K
     }
     if input.pressed(KeyCode::D) {
         transform.translation.x += PLAYER_SPEED;
+        //console(format!("{}", transform.translation));
     }
 }
 
@@ -87,6 +94,12 @@ fn main() {
         //plugins
         .add_plugins(DefaultPlugins)
         .add_plugin(Physics2dPlugin)
+        //resources
+        .insert_resource(WindowDescriptor {
+            title: "poe the potato".to_string(),
+            ..Default::default()
+        })
+        .insert_resource(Msaa { samples: 4 })
         //startup systems
         .add_startup_system(setup)
         //systems
