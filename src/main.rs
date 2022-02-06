@@ -33,7 +33,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         texture: asset_server.load("../assets/spritesiguess/totato.png"),
         ..Default::default()
     }).insert(Player);
-    commands.spawn().insert(Test);
+    commands.spawn().insert(Player);
 }
 
 fn main() {
