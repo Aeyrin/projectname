@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_physimple::prelude::*;
 
 // CONSTANTS
-const PLAYER_SPEED: f32 = 20.0;
+const PLAYER_SPEED: f32 = 10.0;
 
 // RESOURCES
 
@@ -31,6 +31,10 @@ fn move_player (mut query: Query<(&Player, &mut Transform)>,  input: Res<Input<K
     if input.pressed(KeyCode::D) {
         transform.translation.x += PLAYER_SPEED;
         //console(format!("{}", transform.translation));
+    }
+    if input.pressed(KeyCode::Space) {
+        transform.translation.y += PLAYER_SPEED;
+        //jump?
     }
 }
 
@@ -66,7 +70,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
             ..Default::default()
         })
         .insert_bundle(KinematicBundle {
-            shape: CollisionShape::Square(Square::size(Vec2::splat(200.0))),
+            shape: CollisionShape::Square(Square::size(Vec2::splat(50.0))),
             ..Default::default()
         })
         .insert(Player)
@@ -76,12 +80,26 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands
         .spawn_bundle(SpriteBundle {
             texture: asset_server.load("../assets/spritesiguess/block.png"),
-            transform: Transform::from_xyz(0., -400., 0.),
+            transform: Transform::from_xyz(0., -100., 0.),
             ..Default::default()
         })
         .insert_bundle(StaticBundle {
             marker: StaticBody,
-            shape: CollisionShape::Square(Square::size(Vec2::new(600.0, 600.0))),
+            shape: CollisionShape::Square(Square::size(Vec2::new(64.0, 64.0))),
+            coll_layer: CollisionLayer::default(),
+        })
+    ;
+
+    // floor2
+    commands
+        .spawn_bundle(SpriteBundle {
+            texture: asset_server.load("../assets/spritesiguess/block.png"),
+            transform: Transform::from_xyz(60., -150., 0.),
+            ..Default::default()
+        })
+        .insert_bundle(StaticBundle {
+            marker: StaticBody,
+            shape: CollisionShape::Square(Square::size(Vec2::new(64.0, 64.0))),
             coll_layer: CollisionLayer::default(),
         })
     ;
