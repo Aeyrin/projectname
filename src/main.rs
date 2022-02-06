@@ -3,6 +3,8 @@ use bevy_physimple::prelude::*;
 
 #[derive(Component)]
 struct Player;
+#[derive(Component)]
+struct Test;
 
 fn move_player (mut query: Query<(&Player, &mut Transform)>,  input: Res<Input<KeyCode>>) {
     let (_player, mut transform) = query.single_mut();
@@ -31,6 +33,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         texture: asset_server.load("../assets/spritesiguess/totato.png"),
         ..Default::default()
     }).insert(Player);
+    commands.spawn().insert(Test);
 }
 
 fn main() {
