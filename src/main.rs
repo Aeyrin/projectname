@@ -1,10 +1,19 @@
 use bevy::prelude::*;
 use bevy_physimple::prelude::*;
 
+
+// RESOURCES
+
+pub struct Gravity(Vec2);
+
+// COMPONENTS
+
 #[derive(Component)]
 struct Player;
-#[derive(Component)]
-struct Test;
+
+
+
+// SYSTEMS
 
 fn move_player (mut query: Query<(&Player, &mut Transform)>,  input: Res<Input<KeyCode>>) {
     let (_player, mut transform) = query.single_mut();
@@ -20,27 +29,73 @@ fn move_player (mut query: Query<(&Player, &mut Transform)>,  input: Res<Input<K
     if input.pressed(KeyCode::D) {
         transform.translation.x += 20.;
     }
-    /*for player in query.iter ()   {
-        if input.pressed(KeyCode::W) {
-            player.1.translation.y += 100.;
-        }  
-    }*/
 }
 
-fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    commands.spawn_bundle(OrthographicCameraBundle::new_2d());
-    commands.spawn_bundle(SpriteBundle {
-        texture: asset_server.load("../assets/spritesiguess/totato.png"),
-        ..Default::default()
-    }).insert(Player);
-    commands.spawn().insert(Player);
+fn gravity (
+    mut query: Query<&mut Vel>,
+    time: Res<Time>,
+    gravity: Res<Gravity>,
+) {
+    // Vel is a component that's part of the KinematicBundle, its the
+    // velocity of entity. this equation will constantly apply
+    // a downards push on the velocity, using delta to make sure
+    // its consistent regardless of framerate
+    for mut vel in query.iter_mut() {
+        vel.0 += time.delta_seconds() * gravity.0;
+    }
 }
+
+// STARTUP SYSTEMS
+
+fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
+    
+    // gravity
+    commands.insert_resource(Gravity(Vec2::new(0.0,-540.0)));
+
+    // camera
+    commands.spawn_bundle(OrthographicCameraBundle::new_2d());
+
+    // player
+    commands
+        .spawn_bundle(SpriteBundle {
+            texture: asset_server.load("../assets/spritesiguess/totato.png"),
+            //transform: Transform {},
+            ..Default::default()
+        })
+        .insert_bundle(KinematicBundle {
+            shape: CollisionShape::Square(Square::size(Vec2::splat(200.0))),
+            ..Default::default()
+        })
+        .insert(Player)
+    ;
+
+    // floor
+    commands
+        .spawn_bundle(SpriteBundle {
+            texture: asset_server.load("../assets/spritesiguess/block.png"),
+            transform: Transform::from_xyz(0., -400., 0.),
+            ..Default::default()
+        })
+        .insert_bundle(StaticBundle {
+            marker: StaticBody,
+            shape: CollisionShape::Square(Square::size(Vec2::new(600.0, 600.0))),
+            coll_layer: CollisionLayer::default(),
+        })
+    ;
+}
+
+// MAIN
 
 fn main() {
     App::new()
+        //plugins
         .add_plugins(DefaultPlugins)
         .add_plugin(Physics2dPlugin)
+        //startup systems
         .add_startup_system(setup)
+        //systems
         .add_system(move_player)
+        .add_system(gravity)
+        //run
         .run();
 }
