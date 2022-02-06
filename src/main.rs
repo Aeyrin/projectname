@@ -12,7 +12,7 @@ pub struct PlayerStats {
 impl Default for PlayerStats {
     fn default() -> Self {
         Self{
-            speed: 40.0,
+            speed: 1000.0,
         }
     }
 }
@@ -34,21 +34,25 @@ fn console(
 // SYSTEMS
 
 fn move_player (
-    mut query: Query<(&Player, &mut Transform)>, 
+    mut query: Query<&mut Vel, With<Player>>,
+    time: Res<Time>,
     input: Res<Input<KeyCode>>,
     stats: Res<PlayerStats>,
 ) {
-    let (_player, mut transform) = query.single_mut();
     if input.pressed(KeyCode::A) {
-        transform.translation.x -= stats.speed;
+        for mut vel in query.iter_mut() {
+            vel.0.x -= time.delta_seconds() * stats.speed;
+        }
     }
     if input.pressed(KeyCode::D) {
-        transform.translation.x += stats.speed;
-        //console(format!("{}", transform.translation));
+        for mut vel in query.iter_mut() {
+            vel.0.x += time.delta_seconds() * stats.speed;
+        }
     }
     if input.pressed(KeyCode::Space) {
-        transform.translation.y += PLAYER_SPEED;
-        //jump?
+        for mut vel in query.iter_mut() {
+            vel.0.y += time.delta_seconds() * stats.speed;
+        }
     }
 }
 
