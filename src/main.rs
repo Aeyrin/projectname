@@ -7,16 +7,16 @@ struct Player;
 fn move_player (mut query: Query<(&Player, &mut Transform)>,  input: Res<Input<KeyCode>>) {
     let (_player, mut transform) = query.single_mut();
     if input.pressed(KeyCode::W) {
-        transform.translation.y+=20.;
+        transform.translation.y += 20.;
     }
     if input.pressed(KeyCode::A) {
-        transform.translation.x-=20.;
+        transform.translation.x -= 20.;
     }
     if input.pressed(KeyCode::S) {
-        transform.translation.y-=20.;
+        transform.translation.y -= 20.;
     }  
     if input.pressed(KeyCode::D) {
-        transform.translation.x+=20.;
+        transform.translation.x += 20.;
     }
     /*for player in query.iter ()   {
         if input.pressed(KeyCode::W) {
