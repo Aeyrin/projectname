@@ -25,25 +25,6 @@ fn move_player (mut query: Query<(&Player, &mut Transform)>,  input: Res<Input<K
     }*/
 }
 
-<<<<<<< HEAD
-fn add_people(mut commands: Commands) {
-    commands.spawn().insert(Person).insert(Name("Erin :D".to_string()));
-    commands.spawn().insert(Person).insert(Name("Kairo :(".to_string()));
-    commands.spawn().insert(Person).insert(Name("faint as well (gavian)".to_string()));
-}
-
-struct GreetTimer (Timer);
-
-fn greet_people(time: Res<Time>, mut timer: ResMut<GreetTimer>, query: Query<&Name, With<Person>>) {
-    if timer.0.tick(time.delta()).just_finished()   {
-        for name in query.iter ()   {
-            println! ("aaa eeeeee aaaaa e {}!", name.0);
-        }
-    }    
-}
-
-=======
->>>>>>> 7fbd7b05c39da58cec7b6d7e98e29e6725dd4ff9
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn_bundle(OrthographicCameraBundle::new_2d());
     commands.spawn_bundle(SpriteBundle {
