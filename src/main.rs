@@ -46,7 +46,7 @@ fn move_player (mut query: Query<(&Player, &mut Transform)>,  input: Res<Input<K
 fn add_people(mut commands: Commands) {
     commands.spawn().insert(Person).insert(Name("Erin :D".to_string()));
     commands.spawn().insert(Person).insert(Name("Kairo :(".to_string()));
-    commands.spawn().insert(Person).insert(Name("faint as well".to_string()));
+    commands.spawn().insert(Person).insert(Name("faint as well (gavian)".to_string()));
 }
 
 struct GreetTimer (Timer);
