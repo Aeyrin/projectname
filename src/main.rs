@@ -77,6 +77,9 @@ fn gravity (
         vel.0.y = vel.0.y.clamp(-stats.terminal, stats.terminal,);
         vel.0.x = vel.0.x.clamp(-stats.terminal, stats.terminal,);
 
+        // youre still left with an atomic amount of speed
+        // its techincally better to create a speed coefficient and then
+        // apply that directly and invert it if you wanna go backwards
         if vel.0.x != 0. {
             vel.0.x = vel.0.x / stats.friction;
         }
