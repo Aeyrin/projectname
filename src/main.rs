@@ -7,16 +7,20 @@ use bevy_physimple::prelude::*;
 // RESOURCES
 
 pub struct PlayerStats {
+    pub accel: f32,
     pub speed: f32,
     pub terminal: f32,
     pub friction: f32,
+    pub move_axis: i8,
 }
 impl Default for PlayerStats {
     fn default() -> Self {
         Self{
-            speed: 10000.0,
-            terminal: 1000.0,
+            accel: 8_000.0,
+            speed: 600.0,
+            terminal: 1_000.0,
             friction: 1.4,
+            move_axis: 0,
         }
     }
 }
@@ -43,20 +47,37 @@ fn move_player (
     input: Res<Input<KeyCode>>,
     stats: Res<PlayerStats>,
 ) {
+    let mut move_axis: i8 = 0;
     if input.pressed(KeyCode::A) {
-        for mut vel in query.iter_mut() {
-            vel.0.x -= time.delta_seconds() * stats.speed;
-        }
+        move_axis -= 1;
     }
     if input.pressed(KeyCode::D) {
-        for mut vel in query.iter_mut() {
-            vel.0.x += time.delta_seconds() * stats.speed;
-        }
+        move_axis += 1;
     }
+
     if input.pressed(KeyCode::Space) {
-        for mut vel in query.iter_mut() {
-            vel.0.y += time.delta_seconds() * stats.speed;
+
+    }
+
+    for mut vel in query.iter_mut() {
+        //vel.0.x += time.delta_seconds() * stats.speed;
+        if move_axis == 0 && vel.0.x != 0. {
+            //vel.0.x /= stats.accel * time.delta_seconds();
+            let mut v: f32 = 0.0;
+            if vel.0.x > 0.0 {
+                v = 1.0;
+                vel.0.x -= v * stats.accel * time.delta_seconds();
+                vel.0.x = vel.0.x.clamp(0., stats.speed);
+            } else if vel.0.x < 0.0 {
+                v = -1.0;   
+                vel.0.x -= v * stats.accel * time.delta_seconds();
+                vel.0.x = vel.0.x.clamp(-stats.speed, 0.);            
+            }
+            
         }
+        vel.0.x += f32::from(move_axis) * stats.accel * time.delta_seconds();
+        vel.0.x = vel.0.x.clamp(-stats.speed, stats.speed);
+        //vel.0.y += time.delta_seconds() * stats.speed;
     }
 }
 
@@ -71,18 +92,18 @@ fn gravity (
     // a downards push on the velocity, using delta to make sure
     // its consistent regardless of framerate
     for mut vel in query.iter_mut() {
-        vel.0 += time.delta_seconds() * gravity.0;
+        //vel.0 += time.delta_seconds() * gravity.0;
         console(format!("{}", vel.0));
         // totally unrelated, create friction and apply terminal velocity
-        vel.0.y = vel.0.y.clamp(-stats.terminal, stats.terminal,);
-        vel.0.x = vel.0.x.clamp(-stats.terminal, stats.terminal,);
+        //vel.0.y = vel.0.y.clamp(-stats.terminal, stats.terminal,);
+        //vel.0.x = vel.0.x.clamp(-stats.terminal, stats.terminal,);
 
         // youre still left with an atomic amount of speed
         // its techincally better to create a speed coefficient and then
         // apply that directly and invert it if you wanna go backwards
-        if vel.0.x != 0. {
+        /*if vel.0.x != 0. {
             vel.0.x = vel.0.x / stats.friction;
-        }
+        }*/
         /*if vel.0.y != 0. {
             vel.0.y = vel.0.y / stats.friction;
         }*/
@@ -137,11 +158,15 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         .spawn_bundle(SpriteBundle {
             texture: asset_server.load("../assets/spritesiguess/block.png"),
             transform: Transform::from_xyz(60., -150., 0.),
+            sprite: Sprite{
+                custom_size: Some(Vec2::new(64.0, 1000.0,)),
+                ..Default::default()
+            },
             ..Default::default()
         })
         .insert_bundle(StaticBundle {
             marker: StaticBody,
-            shape: CollisionShape::Square(Square::size(Vec2::new(64.0, 64.0))),
+            shape: CollisionShape::Square(Square::size(Vec2::new(64.0, 1000.0))),
             coll_layer: CollisionLayer::default(),
         })
     ;
