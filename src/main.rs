@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_physimple::prelude::*;
 
 // CONSTANTS
-const PLAYER_SPEED: f32 = 10.0;
+//const PLAYER_SPEED: f32 = 10.0;
 
 // RESOURCES
 
