@@ -47,23 +47,29 @@ fn move_player (
     input: Res<Input<KeyCode>>,
     stats: Res<PlayerStats>,
 ) {
-    let mut move_axis: i8 = 0;
+    // move_axis has three states, -1, 0, and 1, for left middle and right
+    let mut move_axis: f32 = 0.0;
     if input.pressed(KeyCode::A) {
-        move_axis -= 1;
+        move_axis -= 1.0;
     }
     if input.pressed(KeyCode::D) {
-        move_axis += 1;
+        move_axis += 1.0;
     }
 
+    // work on jump soon
     if input.pressed(KeyCode::Space) {
 
     }
 
+    // this mess does the actual calculations for movement
     for mut vel in query.iter_mut() {
-        //vel.0.x += time.delta_seconds() * stats.speed;
-        if move_axis == 0 && vel.0.x != 0. {
-            //vel.0.x /= stats.accel * time.delta_seconds();
-            let mut v: f32 = 0.0;
+        // this code block is responsible for stopping the player when no buttons are pressed
+        // yes, stopping the player is more complicated than moving them in the first place.
+        // it works the same as accelerating the player, and uses the same accel stat, but instead
+        // of multiplying by the move_axis, the `v` variable simulates the stick in the opposite
+        // direction the player is moving. youre essentially just turning around until u stop
+        if move_axis == 0.0 && vel.0.x != 0. {
+            let mut v: f32;
             if vel.0.x > 0.0 {
                 v = 1.0;
                 vel.0.x -= v * stats.accel * time.delta_seconds();
@@ -75,9 +81,29 @@ fn move_player (
             }
             
         }
-        vel.0.x += f32::from(move_axis) * stats.accel * time.delta_seconds();
+        // this applies the acceleration stat to the players velocity over time,
+        // and the speed stat acts as a "speed cap", which is what the `clamp` line is doing
+        vel.0.x += move_axis * stats.accel * time.delta_seconds();
         vel.0.x = vel.0.x.clamp(-stats.speed, stats.speed);
-        //vel.0.y += time.delta_seconds() * stats.speed;
+    }
+}
+
+fn debug (
+    input: Res<Input<KeyCode>>,
+    mut stats: ResMut<PlayerStats>,
+) {
+    // use O and P to decrease and increase the accel,
+    // just so we can get a feel for different values
+    if input.just_pressed(KeyCode::O) {
+        stats.accel -= 500.0;
+        stats.accel = stats.accel.clamp(500., 50_000.);
+        println!("accel decreased to : {}", stats.accel);
+    }
+    if input.just_pressed(KeyCode::P) {
+        stats.accel += 500.0;
+        stats.accel = stats.accel.clamp(500., 50_000.);
+        println!("accel increased to : {}", stats.accel);
+        
     }
 }
 
@@ -93,7 +119,7 @@ fn gravity (
     // its consistent regardless of framerate
     for mut vel in query.iter_mut() {
         //vel.0 += time.delta_seconds() * gravity.0;
-        console(format!("{}", vel.0));
+        //console(format!("{}", vel.0));
         // totally unrelated, create friction and apply terminal velocity
         //vel.0.y = vel.0.y.clamp(-stats.terminal, stats.terminal,);
         //vel.0.x = vel.0.x.clamp(-stats.terminal, stats.terminal,);
@@ -190,6 +216,7 @@ fn main() {
         .add_startup_system(setup)
         //systems
         .add_system(move_player)
+        .add_system(debug)
         .add_system(gravity)
         //run
         .run();
