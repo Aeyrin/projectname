@@ -9,18 +9,20 @@ use bevy_physimple::prelude::*;
 pub struct PlayerStats {
     pub accel: f32,
     pub speed: f32,
-    pub terminal: f32,
-    pub friction: f32,
     pub move_axis: i8,
+    pub jump: f32,
+    pub grav: f32,
+    pub terminal: f32,
 }
 impl Default for PlayerStats {
     fn default() -> Self {
         Self{
             accel: 8_000.0,
             speed: 600.0,
-            terminal: 1_000.0,
-            friction: 1.4,
             move_axis: 0,
+            jump: 10_000.0,
+            grav: 5_000.0,
+            terminal: 1_000.0,
         }
     }
 }
@@ -57,8 +59,9 @@ fn move_player (
     }
 
     // work on jump soon
-    if input.pressed(KeyCode::Space) {
-
+    let mut jump: bool = false;
+    if input.just_pressed(KeyCode::Space) {
+        jump = true;
     }
 
     // this mess does the actual calculations for movement
@@ -85,6 +88,11 @@ fn move_player (
         // and the speed stat acts as a "speed cap", which is what the `clamp` line is doing
         vel.0.x += move_axis * stats.accel * time.delta_seconds();
         vel.0.x = vel.0.x.clamp(-stats.speed, stats.speed);
+
+        // this makes jump. rn its basically wings tho lol
+        if jump {
+            vel.0.y = stats.jump;
+        }
     }
 }
 
@@ -103,14 +111,12 @@ fn debug (
         stats.accel += 500.0;
         stats.accel = stats.accel.clamp(500., 50_000.);
         println!("accel increased to : {}", stats.accel);
-        
     }
 }
 
 fn gravity (
     mut query: Query<&mut Vel>,
     time: Res<Time>,
-    gravity: Res<Gravity>,
     stats: Res<PlayerStats>,
 ) {
     // Vel is a component that's part of the KinematicBundle, its the
@@ -118,25 +124,11 @@ fn gravity (
     // a downards push on the velocity, using delta to make sure
     // its consistent regardless of framerate
     for mut vel in query.iter_mut() {
-        //vel.0 += time.delta_seconds() * gravity.0;
-        //console(format!("{}", vel.0));
+        vel.0.y -= time.delta_seconds() * stats.grav;
+        println!("{}", vel.0.y);
         // totally unrelated, create friction and apply terminal velocity
-        //vel.0.y = vel.0.y.clamp(-stats.terminal, stats.terminal,);
+        vel.0.y = vel.0.y.clamp(-stats.terminal, stats.terminal);
         //vel.0.x = vel.0.x.clamp(-stats.terminal, stats.terminal,);
-
-        // youre still left with an atomic amount of speed
-        // its techincally better to create a speed coefficient and then
-        // apply that directly and invert it if you wanna go backwards
-        /*if vel.0.x != 0. {
-            vel.0.x = vel.0.x / stats.friction;
-        }*/
-        /*if vel.0.y != 0. {
-            vel.0.y = vel.0.y / stats.friction;
-        }*/
-        /*if vel.0 > 1000 {
-            vel.0 /= time.delta_seconds() * 2.0;
-        }*/
-        
     }
 }
 
